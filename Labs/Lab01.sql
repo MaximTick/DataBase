@@ -1,0 +1,119 @@
+use master;
+
+create database Trucking;
+go 
+use Trucking;
+
+create table Client(
+id int identity(1,1),
+clientName nvarchar(70) not null,
+constraint pk_client primary key(id)
+);
+
+create table Goods(
+id int identity(1,1),
+shippingName nvarchar(70) not null, --наименование доставки
+weightGoods int not null,
+constraint pk_goods primary key(id)
+);
+
+create table City(
+id int identity(1,1),
+city nvarchar(30) not null,
+constraint pk_city primary key(id)
+);
+
+create table Driver(
+id int identity(1,1),
+lastName nvarchar(30) not null,
+firstName nvarchar(30) not null,
+driversLicenseNumber int not null,
+category nvarchar(10) not null,
+constraint pk_driver primary key(id)
+);
+
+create table Trucks(
+id int identity(1,1),
+truckNumber nchar(7) not null,
+capacity int not null,	
+idDriver int not null,
+constraint pk_trucks  primary key(id),
+constraint fk_driver foreign key (idDriver) references Driver(id)
+);
+
+create table Carriage(
+id int identity(1,1),
+idClient int not null,
+idGoods int not null,
+idTruck int not null,
+idCity int not null,
+dateOfDelivery date not null,
+constraint pk_carriage primary key(id),
+constraint fk_client foreign key (idClient) references Client(id),
+constraint fk_goods foreign key (idGoods) references Goods(id),
+constraint fk_trucks foreign key (idTruck) references Trucks(id),
+constraint fk_city foreign key (idCity) references City(id)
+);
+
+select cl.clientName[Имя клиента], g.shippingName[Поставка], g.weightGoods[вес поставки], 
+d.lastName[Фамилия доставщика], d.firstName [Иия доставщика], city.city[В город], dateOfDelivery[дата поставки] from 
+Client cl join Carriage car on cl.id = car.idClient 
+join Goods g on g.id = car.idGoods
+join Trucks t on t.id = car.idTruck 
+join Driver d on d.id = t.idDriver
+join City city on city.id = car.idCity
+
+
+create view InfoAboutCarrage as
+select cl.clientName[Имя клиента], g.shippingName[Поставка], g.weightGoods[вес поставки], 
+d.lastName[Фамилия доставщика], d.firstName [Иия доставщика], city.city[В город], dateOfDelivery[дата поставки] from 
+Client cl join Carriage car on cl.id = car.idClient 
+join Goods g on g.id = car.idGoods
+join Trucks t on t.id = car.idTruck 
+join Driver d on d.id = t.idDriver
+join City city on city.id = car.idCity
+
+select * from InfoAboutCarrage;
+
+create nonclustered index IX_Carriage on Carriage (dateOfDelivery);
+
+create procedure [dbo].[AddCarriage]
+	@idClient int,
+	@idGoods int,
+	@idTruck int,
+	@idCity int,
+	@dateOfDelivery date
+AS
+
+declare @weight int;
+declare @capacity int;
+select @weight = weightGoods, @capacity = capacity from Goods, Trucks where @idGoods = Goods.id and @idTruck = Trucks.id;
+if(@weight < @capacity)
+insert into Carriage (idClient, idGoods, idTruck,idCity, dateOfDelivery) select @idClient, @idGoods, @idTruck, @idCity, @dateOfDelivery
+if(@weight > @capacity)
+print N'Вес для перевозки не может быть больше грузоподъемности грузовика';
+
+select id, idClient, idGoods, idTruck, idCity, dateOfDelivery from Carriage where id = SCOPE_IDENTITY()
+
+go
+
+select * from Carriage;
+
+execute [dbo].[AddCarriage] @idClient = 11, @idGoods = 1,  @idTruck = 1, @idCity = 7, @dateOfDelivery =  '2019-02-24'
+
+
+---trigger
+CREATE TABLE History 
+(
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    carriageId INT NOT NULL,
+    operation NVARCHAR(200) NOT NULL,
+	createAt DATETIME NOT NULL DEFAULT GETDATE(),
+);
+
+create trigger Carriage_Insert on Carriage after insert
+as 
+insert into History (carriageId, operation) select id , 'Добавлена поставка' from inserted
+go
+
+
