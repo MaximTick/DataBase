@@ -12,7 +12,7 @@ constraint pk_client primary key(id)
 
 create table Goods(
 id int identity(1,1),
-shippingName nvarchar(70) not null, --наименование доставки
+shippingName nvarchar(70) not null, --РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РґРѕСЃС‚Р°РІРєРё
 weightGoods int not null,
 constraint pk_goods primary key(id)
 );
@@ -55,8 +55,8 @@ constraint fk_trucks foreign key (idTruck) references Trucks(id),
 constraint fk_city foreign key (idCity) references City(id)
 );
 
-select cl.clientName[Имя клиента], g.shippingName[Поставка], g.weightGoods[вес поставки], 
-d.lastName[Фамилия доставщика], d.firstName [Иия доставщика], city.city[В город], dateOfDelivery[дата поставки] from 
+select cl.clientName[РРјСЏ РєР»РёРµРЅС‚Р°], g.shippingName[РџРѕСЃС‚Р°РІРєР°], g.weightGoods[РІРµСЃ РїРѕСЃС‚Р°РІРєРё], 
+d.lastName[Р¤Р°РјРёР»РёСЏ РґРѕСЃС‚Р°РІС‰РёРєР°], d.firstName [РРёСЏ РґРѕСЃС‚Р°РІС‰РёРєР°], city.city[Р’ РіРѕСЂРѕРґ], dateOfDelivery[РґР°С‚Р° РїРѕСЃС‚Р°РІРєРё] from 
 Client cl join Carriage car on cl.id = car.idClient 
 join Goods g on g.id = car.idGoods
 join Trucks t on t.id = car.idTruck 
@@ -65,8 +65,8 @@ join City city on city.id = car.idCity
 
 
 create view InfoAboutCarrage as
-select cl.clientName[Имя клиента], g.shippingName[Поставка], g.weightGoods[вес поставки], 
-d.lastName[Фамилия доставщика], d.firstName [Иия доставщика], city.city[В город], dateOfDelivery[дата поставки] from 
+select cl.clientName[РРјСЏ РєР»РёРµРЅС‚Р°], g.shippingName[РџРѕСЃС‚Р°РІРєР°], g.weightGoods[РІРµСЃ РїРѕСЃС‚Р°РІРєРё], 
+d.lastName[Р¤Р°РјРёР»РёСЏ РґРѕСЃС‚Р°РІС‰РёРєР°], d.firstName [РРёСЏ РґРѕСЃС‚Р°РІС‰РёРєР°], city.city[Р’ РіРѕСЂРѕРґ], dateOfDelivery[РґР°С‚Р° РїРѕСЃС‚Р°РІРєРё] from 
 Client cl join Carriage car on cl.id = car.idClient 
 join Goods g on g.id = car.idGoods
 join Trucks t on t.id = car.idTruck 
@@ -91,7 +91,7 @@ select @weight = weightGoods, @capacity = capacity from Goods, Trucks where @idG
 if(@weight < @capacity)
 insert into Carriage (idClient, idGoods, idTruck,idCity, dateOfDelivery) select @idClient, @idGoods, @idTruck, @idCity, @dateOfDelivery
 if(@weight > @capacity)
-print N'Вес для перевозки не может быть больше грузоподъемности грузовика';
+print N'Р’РµСЃ РґР»СЏ РїРµСЂРµРІРѕР·РєРё РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РіСЂСѓР·РѕРїРѕРґСЉРµРјРЅРѕСЃС‚Рё РіСЂСѓР·РѕРІРёРєР°';
 
 select id, idClient, idGoods, idTruck, idCity, dateOfDelivery from Carriage where id = SCOPE_IDENTITY()
 
@@ -113,7 +113,7 @@ CREATE TABLE History
 
 create trigger Carriage_Insert on Carriage after insert
 as 
-insert into History (carriageId, operation) select id , 'Добавлена поставка' from inserted
+insert into History (carriageId, operation) select id , 'Р”РѕР±Р°РІР»РµРЅР° РїРѕСЃС‚Р°РІРєР°' from inserted
 go
 
 
