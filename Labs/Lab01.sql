@@ -1,6 +1,6 @@
 use master;
 
-drop database Trucking;
+create database Trucking;
 go 
 
 use Trucking;
@@ -59,6 +59,8 @@ constraint fk_trucks foreign key (idTransport) references Transport(id),
 constraint fk_city foreign key (idCity) references City(id)
 );
 
+create procedure GetInfoCarriage
+as
 select cl.clientName[Имя клиента], g.shippingName[Поставка], g.weightGoods[вес поставки], 
 d.lastName[Фамилия доставщика], d.firstName [Иия доставщика], city.city[В город], dateOfDelivery[дата поставки] from 
 Client cl join Carriage car on cl.id = car.idClient 
@@ -66,6 +68,9 @@ join Goods g on g.id = car.idGoods
 join Transport t on t.id = car.idTransport 
 join Driver d on d.id = t.idDriver
 join City city on city.id = car.idCity
+go
+
+exec GetInfoCarriage
 
 
 create view InfoAboutCarrage as
@@ -99,12 +104,23 @@ if(@weight > @capacity)
 print N'Вес для перевозки не может быть больше грузоподъемности грузовика';
 
 select id, idClient, idGoods, idTransport, idCity, dateOfDelivery, typeOfService from Carriage where id = SCOPE_IDENTITY()
-
 go
 
+
+
+create procedure [GetAllCarriage]
+as
+select idClient, idGoods, idTransport, idCity, dateOfDelivery, typeOfService from Carriage
+go
 select * from Carriage;
 
 execute [dbo].[AddCarriage] @idClient = 11, @idGoods = 1,  @idTransport = 1, @idCity = 7, @dateOfDelivery =  '2019-02-24'
+
+create procedure InsertIntoClient
+@clientName nvarchar(70)
+as 
+insert into Client(clientName) values(@clientName);
+
 
 
 ---trigger
