@@ -9,7 +9,7 @@ use Trucking
 go
 ----------------------------------------------------------------------------------------------------------------
 alter database Trucking set TRUSTWORTHY  ON;
-alter assembly DB_Lab03_Assembly from 'D:\study3course\6thsem\Db\Labs\DB_Lab03\DB_Lab03\bin\Debug\DB_Lab03.dll' WITH PERMISSION_SET = SAFE;
+create assembly DB_Lab03_Assembly from 'D:\study3course\6thsem\Db\Labs\DB_Lab03\DB_Lab03\bin\Debug\DB_Lab03.dll' WITH PERMISSION_SET = SAFE;
 go
 
 create procedure MyStoredProcedure @StartDate datetime, @EndDate datetime
