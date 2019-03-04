@@ -1,3 +1,4 @@
+--В таблице Transport перед ее созданием изменить столбец taransportNumber на transportNumber
 use master;
 
 create database Trucking;
@@ -25,13 +26,20 @@ constraint pk_city primary key(id)
 );
 
 create table Driver(
-id int identity(1,1),
+id int identity(1,1) unique,
 lastName nvarchar(30) not null,
 firstName nvarchar(30) not null,
 driversLicenseNumber int not null,
 category nvarchar(10) not null,
-constraint pk_driver primary key(id)
-);
+salary money not null,
+[year] int not null,
+--constraint pk2_driver primary key(lastname, [year])
+) on [primary]
+go
+
+--drop table Driver;
+--alter table Transport drop fk_driver;
+alter table Transport add constraint fk_driver foreign key(idDriver) references Driver(id)
 
 create table Transport(
 id int identity(1,1),
@@ -99,20 +107,18 @@ declare @weight int;
 declare @capacity int;
 select @weight = weightGoods, @capacity = capacity from Goods, Transport where @idGoods = Goods.id and @idTransport = Transport.id;
 if(@weight < @capacity)
-insert into Carriage (idClient, idGoods, idTransport,idCity, dateOfDelivery, typeOfService) select @idClient, @idGoods, @idTransport, @idCity, @dateOfDelivery, @typeOfService
+insert into Carriage (idClient, idGoods, idTransport,idCity, dateOfDelivery, typeOfService) 
+select @idClient, @idGoods, @idTransport, @idCity, @dateOfDelivery, @typeOfService
 if(@weight > @capacity)
 print N'Вес для перевозки не может быть больше грузоподъемности грузовика';
-
 select id, idClient, idGoods, idTransport, idCity, dateOfDelivery, typeOfService from Carriage where id = SCOPE_IDENTITY()
 go
-
 
 
 create procedure [GetAllCarriage]
 as
 select idClient, idGoods, idTransport, idCity, dateOfDelivery, typeOfService from Carriage
 go
-select * from Carriage;
 
 execute [dbo].[AddCarriage] @idClient = 11, @idGoods = 1,  @idTransport = 1, @idCity = 7, @dateOfDelivery =  '2019-02-24'
 
@@ -131,10 +137,11 @@ CREATE TABLE History
     operation NVARCHAR(200) NOT NULL,
 	createAt DATETIME NOT NULL DEFAULT GETDATE(),
 );
-
+go
 create trigger Carriage_Insert on Carriage after insert
 as 
 insert into History (carriageId, operation) select id , 'Добавлена поставка' from inserted
 go
 
+select * from history
 
